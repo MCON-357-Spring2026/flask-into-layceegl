@@ -4,15 +4,17 @@ app=Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def index():
-    return "<h1>Welcome to My Flask API!</h1>"
+    response = app.make_response("<h1>Welcome to My Flask API!</h1>")
+    response.headers['X-Custom-Header'] = 'FlaskRocks'
+    return response
 
 @app.route('/about', methods=['GET'])
 def about():
     # Pass a Python dict to jsonify, not a string
     return jsonify({
-        "name": "Your Name",
-        "course": "MCON-504 - Backend Development",
-        "semester": "Spring 2025"
+        "name": "LayCee",
+        "course": "MCON-357",
+        "semester": "Spring 2026"
     })
 
 @app.route('/greet/<name>', methods=['GET'])
@@ -55,6 +57,17 @@ def echo():
 @app.route('/status/<int:code>', methods=['GET'])
 def status(code):
     return f'This is a {code} error', code
+
+@app.route('/debug/routes')
+def show_routes():
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append({
+            'endpoint': rule.endpoint,
+            'methods': list(rule.methods),
+            'path': str(rule)
+        })
+    return jsonify(routes)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
